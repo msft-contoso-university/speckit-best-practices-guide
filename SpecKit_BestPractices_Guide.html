@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en" data-color-mode="light" data-light-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spec-Kit &amp; GitHub Copilot &mdash; Best Practices Observer Guide</title>
+  <link href="https://unpkg.com/@primer/css@21/dist/primer.css" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-copilot: #6e40c9;
+      --brand-copilot-dark: #553098;
+      --brand-spec: #0078d4;
+      --brand-spec-dark: #005a9e;
+      --brand-devops: #2da44e;
+      --brand-devops-dark: #1a7f37;
+      --brand-warning: #9a6700;
+      --brand-danger: #cf222e;
+      --brand-share: #bf8700;
+      --hero-gradient: linear-gradient(135deg, #0d1117 0%, #161b22 40%, #1c2333 100%);
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; margin: 0; scroll-behavior: smooth; }
+    .hero { background: var(--hero-gradient); color: #f0f6fc; padding: 80px 0 64px; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -50%; right: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,120,212,0.18) 0%, transparent 70%); border-radius: 50%; }
+    .hero::after { content: ''; position: absolute; bottom: -30%; left: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(110,64,201,0.12) 0%, transparent 70%); border-radius: 50%; }
+    .hero h1 { font-size: 42px; font-weight: 800; line-height: 1.1; max-width: 900px; position: relative; }
+    .hero h1 .highlight { color: var(--brand-spec); }
+    .hero h1 .highlight-copilot { color: var(--brand-copilot); }
+    .hero .subtitle { font-size: 18px; color: #8b949e; max-width: 820px; margin-top: 16px; line-height: 1.6; }
+    .hero .badge-row { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .section { padding: 48px 0; }
+    .section-alt { background-color: #f6f8fa; }
+    .section-title { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+    .section-lead { font-size: 17px; color: #656d76; margin-bottom: 32px; max-width: 820px; line-height: 1.6; }
+    .feature-card { border: 1px solid #d0d7de; border-radius: 12px; padding: 24px; transition: box-shadow 0.2s; background: #fff; }
+    .feature-card:hover { border-color: var(--brand-spec); box-shadow: 0 4px 12px rgba(0,120,212,0.12); }
+    .feature-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .feature-card p, .feature-card li { font-size: 14px; color: #656d76; line-height: 1.6; }
+    .feature-card ul { padding-left: 16px; }
+    .code-block { background: #0d1117; border-radius: 8px; padding: 16px; overflow-x: auto; margin: 16px 0; }
+    .code-block code { color: #f0f6fc; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; line-height: 1.6; white-space: pre; }
+    .code-block .comment { color: #8b949e; }
+    .code-block .cmd { color: #79c0ff; }
+    .code-block .flag { color: #a5d6ff; }
+    .code-block .string { color: #a5d6ff; }
+    .callout { border-left: 4px solid var(--brand-copilot); background: #f5f0ff; border-radius: 0 8px 8px 0; padding: 20px 24px; margin: 24px 0; }
+    .callout p { font-size: 15px; line-height: 1.6; color: #24292f; margin: 0; }
+    .callout strong { color: var(--brand-copilot-dark); }
+    .callout-blue { border-left-color: var(--brand-spec); background: #ddf4ff; }
+    .callout-blue strong { color: var(--brand-spec-dark); }
+    .callout-warn { border-left-color: var(--brand-warning); background: #fff8c5; }
+    .callout-warn strong { color: var(--brand-warning); }
+    .callout-danger { border-left-color: var(--brand-danger); background: #ffebe9; }
+    .callout-danger strong { color: var(--brand-danger); }
+    .callout-success { border-left-color: var(--brand-devops); background: #dafbe1; }
+    .callout-success strong { color: var(--brand-devops-dark); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    @media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .hero h1 { font-size: 28px; } }
+    .top-nav { background: #0d1117; border-bottom: 1px solid #30363d; padding: 12px 0; position: sticky; top: 0; z-index: 100; }
+    .top-nav a { color: #f0f6fc; text-decoration: none; font-size: 13px; font-weight: 500; padding: 6px 10px; border-radius: 6px; }
+    .top-nav a:hover { background: #21262d; }
+    .nav-inner { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .nav-logo { font-weight: 700; font-size: 15px; margin-right: 12px; color: #f0f6fc; }
+    .footer { background: #0d1117; color: #8b949e; padding: 40px 0; }
+    .footer a { color: var(--brand-spec); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    table.gov-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+    table.gov-table th { background: #f6f8fa; border-bottom: 2px solid #d0d7de; padding: 12px; text-align: left; font-weight: 600; }
+    table.gov-table td { padding: 12px; border-bottom: 1px solid #d0d7de; color: #24292f; }
+    table.gov-table tr:hover { background: #f6f8fa; }
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { padding: 8px 0 8px 28px; position: relative; font-size: 14px; line-height: 1.6; color: #24292f; }
+    .checklist li::before { content: '\2610'; position: absolute; left: 0; color: var(--brand-spec); font-size: 16px; }
+    .checklist li.checked::before { content: '\2611'; color: var(--brand-devops); }
+    .flow-diagram { display: flex; align-items: center; gap: 0; flex-wrap: wrap; justify-content: center; margin: 32px 0; }
+    .flow-step { background: #fff; border: 2px solid var(--brand-spec); border-radius: 12px; padding: 16px 20px; text-align: center; min-width: 130px; }
+    .flow-step h4 { font-size: 14px; margin: 0 0 4px; color: var(--brand-spec-dark); }
+    .flow-step p { font-size: 12px; color: #656d76; margin: 0; }
+    .flow-arrow { font-size: 24px; color: var(--brand-spec); padding: 0 8px; }
+    .flow-step.active { border-color: var(--brand-copilot); background: #f5f0ff; }
+    .flow-step.active h4 { color: var(--brand-copilot-dark); }
+    .token-meter { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+    .token-bar { height: 8px; border-radius: 4px; flex: 1; background: #d0d7de; overflow: hidden; }
+    .token-bar .fill { height: 100%; border-radius: 4px; }
+    .token-bar .fill.low { background: var(--brand-devops); }
+    .token-bar .fill.med { background: var(--brand-warning); }
+    .token-bar .fill.high { background: var(--brand-danger); }
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+    .do-dont .do { border: 1px solid var(--brand-devops); border-radius: 8px; padding: 16px; background: #f6fff8; }
+    .do-dont .dont { border: 1px solid var(--brand-danger); border-radius: 8px; padding: 16px; background: #fff8f8; }
+    .do-dont h4 { font-size: 14px; margin: 0 0 8px; }
+    .do-dont .do h4 { color: var(--brand-devops-dark); }
+    .do-dont .dont h4 { color: var(--brand-danger); }
+    .do-dont p, .do-dont li { font-size: 13px; line-height: 1.6; }
+    .do-dont ul { padding-left: 16px; margin: 4px 0 0; }
+    @media (max-width: 768px) { .do-dont { grid-template-columns: 1fr; } }
+    .observer-badge { display: inline-flex; align-items: center; gap: 6px; background: #ddf4ff; border: 1px solid #54aeff; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: var(--brand-spec-dark); }
+    .step-number { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brand-spec); color: #fff; font-size: 13px; font-weight: 700; margin-right: 8px; flex-shrink: 0; }
+    .workflow-step { display: flex; align-items: flex-start; padding: 16px; border: 1px solid #d0d7de; border-radius: 8px; margin-bottom: 12px; background: #fff; }
+    .workflow-step:hover { border-color: var(--brand-spec); }
+    .workflow-step .content { flex: 1; }
+    .workflow-step .content h4 { font-size: 15px; margin: 0 0 4px; }
+    .workflow-step .content p { font-size: 13px; color: #656d76; margin: 0; line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="top-nav"><div class="container-xl px-3"><div class="nav-inner">
+  <span class="nav-logo">&#x1F4D0; Spec-Kit Observer Guide</span>
+  <a href="#overview">Overview</a>
+  <a href="#workflow">Workflow</a>
+  <a href="#constitution">Constitution</a>
+  <a href="#token-usage">Token Usage</a>
+  <a href="#copilot-practices">Copilot Practices</a>
+  <a href="#slash-commands">Slash Commands</a>
+  <a href="#pitfalls">Pitfalls</a>
+  <a href="#caveman">Caveman</a>
+  <a href="#cavekit">Cavekit</a>
+  <a href="#observer-checklist">Checklist</a>
+</div></div></nav>
+
+<!-- Hero -->
+<section class="hero"><div class="container-xl px-3">
+  <p style="font-size:13px; text-transform:uppercase; letter-spacing:2px; color:#8b949e; margin-bottom:12px; font-weight:600;">Over-the-Shoulder Observer Guide &mdash; 2026</p>
+  <h1><span class="highlight">Spec-Kit</span> + <span class="highlight-copilot">GitHub Copilot</span> Best Practices</h1>
+  <p class="subtitle">A reference guide for observing and coaching developers using Spec-Kit to scaffold applications with GitHub Copilot. Covers the full workflow, token optimization, slash command mastery, and common pitfalls to watch for in real time.</p>
+  <div class="badge-row">
+    <span class="Label Label--info">Spec-Kit</span>
+    <span class="Label Label--accent">GitHub Copilot</span>
+    <span class="Label Label--success">Token Optimization</span>
+    <span class="Label Label--attention">SDD Workflow</span>
+    <span class="Label Label--done">Best Practices</span>
+  </div>
+</div></section>
+
+<!-- ======== OVERVIEW ======== -->
+<section id="overview" class="section">
+<div class="container-xl px-3">
+  <h2 class="section-title">What is Spec-Kit?</h2>
+  <p class="section-lead">Spec-Kit is a Specification-Driven Development (SDD) tool from GitHub that inverts the traditional code-first approach. Specifications become the primary artifact&mdash;code is the generated output that serves the specification.</p>
+
+  <div class="grid-3">
+    <div class="feature-card">
+      <h3>&#x1F4DD; Intent-Driven</h3>
+      <p>Specs capture <strong>WHAT</strong> you want, not HOW to build it. AI handles implementation details based on structured, precise specifications.</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x2699;&#xFE0F; Executable Specs</h3>
+      <p>Specifications are living instructions that drive multi-step development workflows, enable AI agents to build iteratively, and provide feedback loops.</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F504; Multi-Phase</h3>
+      <p>Supports Greenfield (0-to-1), Creative Exploration (prototyping), and Brownfield (refactoring) development phases.</p>
+    </div>
+  </div>
+
+  <div class="callout-blue callout" style="margin-top:32px;">
+    <p><strong>Key Insight:</strong> In SDD, maintaining software means evolving specifications. Debugging means fixing specifications that generate incorrect code. The spec is truth&mdash;code is its expression.</p>
+  </div>
+
+  <!-- File Structure -->
+  <h3 style="margin-top:32px;">The <code>.specify/</code> Directory Structure</h3>
+  <div class="code-block"><code><span class="comment"># Every Spec-Kit project creates this structure:</span>
+.specify/
+&#x251C;&#x2500;&#x2500; constitution.md      <span class="comment"># Core principles and rules (the "OS" of your project)</span>
+&#x251C;&#x2500;&#x2500; specification.md     <span class="comment"># Technical requirements (WHAT to build)</span>
+&#x251C;&#x2500;&#x2500; plan.md              <span class="comment"># Implementation roadmap (HOW + tech stack)</span>
+&#x2514;&#x2500;&#x2500; tasks.md             <span class="comment"># Actionable task list (executable steps)</span></code></div>
+</div>
+</section>
+
+<!-- ======== WORKFLOW ======== -->
+<section id="workflow" class="section section-alt">
+<div class="container-xl px-3">
+  <h2 class="section-title">The Spec-Kit Workflow</h2>
+  <p class="section-lead">Watch for this sequential flow. Each step builds on the previous one. Skipping steps is a common pitfall that degrades output quality.</p>
+
+  <div class="flow-diagram">
+    <div class="flow-step"><h4>/speckit.constitution</h4><p>Define principles</p></div>
+    <div class="flow-arrow">&#x2192;</div>
+    <div class="flow-step"><h4>/speckit.specify</h4><p>Define WHAT</p></div>
+    <div class="flow-arrow">&#x2192;</div>
+    <div class="flow-step"><h4>/speckit.clarify</h4><p>Find gaps</p></div>
+    <div class="flow-arrow">&#x2192;</div>
+    <div class="flow-step"><h4>/speckit.plan</h4><p>Define HOW</p></div>
+    <div class="flow-arrow">&#x2192;</div>
+    <div class="flow-step"><h4>/speckit.tasks</h4><p>Break down</p></div>
+    <div class="flow-arrow">&#x2192;</div>
+    <div class="flow-step active"><h4>/speckit.implement</h4><p>Build it</p></div>
+  </div>
+
+  <div class="workflow-step">
+    <span class="step-number">1</span>
+    <div class="content">
+      <h4><code>/speckit.constitution</code> &mdash; Establish Project Rules</h4>
+      <p>Creates the governing principles. Should define: tech constraints, quality standards, testing requirements, approved libraries. Think of it as your project's "operating system."</p>
+    </div>
+  </div>
+  <div class="workflow-step">
+    <span class="step-number">2</span>
+    <div class="content">
+      <h4><code>/speckit.specify</code> &mdash; Define Requirements</h4>
+      <p>Describe WHAT you want to build with user stories, acceptance criteria, and success metrics. Avoid mentioning tech stack here&mdash;focus on intent. Automatically creates feature branches and structured directories.</p>
+    </div>
+  </div>
+  <div class="workflow-step">
+    <span class="step-number">3</span>
+    <div class="content">
+      <h4><code>/speckit.clarify</code> &mdash; Identify Gaps (Optional but Recommended)</h4>
+      <p>AI identifies underspecified areas before planning begins. Produces <code>[NEEDS CLARIFICATION]</code> markers that must be resolved. This saves massive token waste in later steps.</p>
+    </div>
+  </div>
+  <div class="workflow-step">
+    <span class="step-number">4</span>
+    <div class="content">
+      <h4><code>/speckit.plan</code> &mdash; Technical Implementation Plan</h4>
+      <p>Now introduce tech stack, architecture, and phased implementation details. Generates supporting docs: data models, API contracts, research docs, and quickstart guides.</p>
+    </div>
+  </div>
+  <div class="workflow-step">
+    <span class="step-number">5</span>
+    <div class="content">
+      <h4><code>/speckit.tasks</code> &mdash; Generate Task List</h4>
+      <p>Converts the plan into atomic, executable tasks (1-4 hours each). Marks independent tasks for parallelization. Creates the actionable backlog.</p>
+    </div>
+  </div>
+  <div class="workflow-step">
+    <span class="step-number">6</span>
+    <div class="content">
+      <h4><code>/speckit.implement</code> &mdash; Execute</h4>
+      <p>AI works through all tasks systematically, building the application according to constitution, specification, and plan. This is where code generation happens.</p>
+    </div>
+  </div>
+
+  <div class="callout-warn callout">
+    <p><strong>Observer Watch:</strong> If the developer jumps straight to <code>/speckit.implement</code> without constitution + specify + plan, flag it immediately. This produces low-quality, unfocused output and wastes tokens on regeneration.</p>
+  </div>
+</div>
+</section>
+
+<!-- ======== CONSTITUTION BEST PRACTICES ======== -->
+<section id="constitution" class="section">
+<div class="container-xl px-3">
+  <h2 class="section-title">Constitution Best Practices</h2>
+  <p class="section-lead">The constitution is the highest-impact artifact. A strong constitution constrains the LLM to produce architecturally consistent, high-quality code. A weak one leads to drift and wasted iterations.</p>
+
+  <div class="do-dont">
+    <div class="do">
+      <h4>&#x2705; DO</h4>
+      <ul>
+        <li>Write specific, testable principles ("All API endpoints must return proper HTTP status codes")</li>
+        <li>Include approved library lists with rationale</li>
+        <li>Define what "done" looks like for a feature</li>
+        <li>Reference specific patterns by name</li>
+        <li>Keep it concise&mdash;LLMs process shorter docs more accurately</li>
+        <li>Update when you discover new patterns</li>
+      </ul>
+    </div>
+    <div class="dont">
+      <h4>&#x274C; DON'T</h4>
+      <ul>
+        <li>Write vague principles ("Code should be clean")</li>
+        <li>Include 50+ linting rules (use <code>.eslintrc</code> instead)</li>
+        <li>Copy generic best practices that don't fit your project</li>
+        <li>Lock into decisions too early&mdash;constitutions can evolve</li>
+        <li>Forget to document WHY a principle exists</li>
+        <li>Make it so long the LLM truncates it from context</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px;">Example: Well-Structured Constitution Article</h3>
+  <div class="code-block"><code><span class="comment">## Article I: Library-First Development</span>
+When a task can be solved with a well-maintained library, we MUST use the library.
+
+<span class="comment">Why:</span> Implementations using libraries (rss-parser, cheerio) achieved
+95% spec adherence vs 40% for custom parsers in validation testing.
+
+<span class="comment">Approved Libraries:</span>
+- RSS parsing: rss-parser
+- Web scraping: cheerio
+- Database: better-sqlite3
+- Testing: vitest</code></div>
+
+  <div class="callout">
+    <p><strong>Token Impact:</strong> A well-written constitution of 200-400 words outperforms a 2000-word one. The LLM reads the full constitution on every <code>/speckit.constitution</code> call. Keep it dense and actionable.</p>
+  </div>
+</div>
+</section>
+
+<!-- ======== TOKEN USAGE ======== -->
+<section id="token-usage" class="section section-alt">
+<div class="container-xl px-3">
+  <h2 class="section-title">Token Usage &amp; Optimization</h2>
+  <p class="section-lead">Token efficiency directly impacts response quality, speed, and cost. Watch for these patterns that indicate token waste or poor context management.</p>
+
+  <h3>Token Cost by Activity</h3>
+  <table class="gov-table">
+    <thead>
+      <tr><th>Activity</th><th>Token Impact</th><th>Optimization Strategy</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/speckit.constitution</code></td>
+        <td>
+          <div class="token-meter"><div class="token-bar"><div class="fill low" style="width:25%"></div></div><span style="font-size:12px;color:#656d76;">Low</span></div>
+        </td>
+        <td>Keep under 500 words. Use bullet points, not prose.</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.specify</code></td>
+        <td>
+          <div class="token-meter"><div class="token-bar"><div class="fill med" style="width:50%"></div></div><span style="font-size:12px;color:#656d76;">Medium</span></div>
+        </td>
+        <td>Focus on WHAT, not HOW. Avoid implementation details in spec.</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.plan</code></td>
+        <td>
+          <div class="token-meter"><div class="token-bar"><div class="fill med" style="width:65%"></div></div><span style="font-size:12px;color:#656d76;">Medium-High</span></div>
+        </td>
+        <td>Use hierarchical detail: high-level in plan, details in sub-files.</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.implement</code></td>
+        <td>
+          <div class="token-meter"><div class="token-bar"><div class="fill high" style="width:90%"></div></div><span style="font-size:12px;color:#656d76;">High</span></div>
+        </td>
+        <td>Ensure tasks are atomic. Vague tasks cause re-generation loops.</td>
+      </tr>
+      <tr>
+        <td>Re-grounding mid-conversation</td>
+        <td>
+          <div class="token-meter"><div class="token-bar"><div class="fill med" style="width:40%"></div></div><span style="font-size:12px;color:#656d76;">Medium</span></div>
+        </td>
+        <td>Use <code>/speckit.constitution</code> every 5-10 messages to prevent drift.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:32px;">Token Optimization Strategies</h3>
+  <div class="grid-2">
+    <div class="feature-card">
+      <h3>&#x1F3AF; Front-Load Precision</h3>
+      <ul>
+        <li>Invest time in clear, unambiguous specs upfront</li>
+        <li>Every <code>[NEEDS CLARIFICATION]</code> marker resolved before planning saves 3-5x tokens downstream</li>
+        <li>Use <code>/speckit.clarify</code> before <code>/speckit.plan</code></li>
+        <li>Ambiguity in specs = multiple regeneration cycles during implementation</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F4CA; Hierarchical Detail Management</h3>
+      <ul>
+        <li>Keep <code>plan.md</code> high-level and readable</li>
+        <li>Move code samples and algorithms to <code>implementation-details/</code> subdirectory</li>
+        <li>The LLM loads full file contents&mdash;bloated files waste context window</li>
+        <li>Use separate files for data models, API contracts, and research</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h3>&#x2702;&#xFE0F; Atomic Tasks</h3>
+      <ul>
+        <li>Each task in <code>tasks.md</code> should be completable in 1-4 hours</li>
+        <li>Include: Input, Output, Error handling, Test criteria</li>
+        <li>Vague tasks like "Build the RSS system" cause the LLM to hallucinate scope</li>
+        <li>Atomic tasks = fewer retries = fewer tokens</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F501; Prevent Regeneration Loops</h3>
+      <ul>
+        <li>Use <code>/speckit.analyze</code> before <code>/speckit.implement</code> to catch misalignment</li>
+        <li>Validate constitution + spec + plan consistency first</li>
+        <li>Fix spec issues BEFORE implementation, never during</li>
+        <li>A single spec change mid-implement can waste 50%+ of spent tokens</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout-danger callout" style="margin-top:24px;">
+    <p><strong>Red Flag:</strong> If the developer is repeatedly asking the AI to "redo" or "try again" during implementation, the upstream specs are likely unclear. Stop, go back to <code>/speckit.specify</code> or <code>/speckit.clarify</code>, fix the ambiguity, then resume. This is the #1 token waste pattern.</p>
+  </div>
+</div>
+</section>
+
+<!-- ======== COPILOT BEST PRACTICES ======== -->
+<section id="copilot-practices" class="section">
+<div class="container-xl px-3">
+  <h2 class="section-title">GitHub Copilot Best Practices with Spec-Kit</h2>
+  <p class="section-lead">Spec-Kit is designed to work with GitHub Copilot's Agent Mode. These practices ensure maximum effectiveness and minimal token waste when using them together.</p>
+
+  <div class="grid-2">
+    <div class="feature-card" style="border-top: 4px solid var(--brand-copilot);">
+      <h3>&#x1F916; Agent Mode Configuration</h3>
+      <ul>
+        <li><strong>Initialize with <code>--ai copilot</code></strong>: <code>specify init my-project --ai copilot</code></li>
+        <li>This configures slash commands for Copilot's interface</li>
+        <li>Agent Mode processes the full <code>.specify/</code> directory as context</li>
+        <li>Copilot's context window benefits from concise, well-structured specs</li>
+      </ul>
+    </div>
+    <div class="feature-card" style="border-top: 4px solid var(--brand-copilot);">
+      <h3>&#x1F4C1; Context Management</h3>
+      <ul>
+        <li><strong>Keep <code>.specify/</code> in workspace root</strong>&mdash;Copilot auto-indexes it</li>
+        <li>Use <code>.github/copilot-instructions.md</code> to point Copilot at your constitution</li>
+        <li>Smaller, focused files &gt; large monolithic specs (aids retrieval)</li>
+        <li>Pin critical spec files in your editor for instant context</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">Copilot Token Efficiency Patterns</h3>
+  <div class="grid-3" style="margin-top:16px;">
+    <div class="feature-card">
+      <h3>&#x1F4AC; Prompt Hygiene</h3>
+      <ul>
+        <li>Be specific in requests: "Implement task 2.3 from tasks.md" not "build the next thing"</li>
+        <li>Reference spec artifacts by name to anchor the LLM</li>
+        <li>One intent per message&mdash;compound requests confuse context</li>
+        <li>Use <code>/speckit.tasks</code> to remind Copilot of current work state</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F9F9; Session Management</h3>
+      <ul>
+        <li>Start new chat sessions for new features to reset context</li>
+        <li>Long conversations accumulate noise that degrades output</li>
+        <li>Use <code>/speckit.constitution</code> at session start to ground the model</li>
+        <li>After 15-20 messages, consider a fresh session with clear intent</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F512; Scope Control</h3>
+      <ul>
+        <li>Close unrelated files before implementation (reduces context noise)</li>
+        <li>Use <code>#file</code> references to direct Copilot to specific specs</li>
+        <li>Prefer <code>@workspace</code> for broad questions, direct references for implementation</li>
+        <li>Exclude <code>node_modules/</code>, <code>dist/</code> from Copilot's indexing</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">Copilot Agent Mode + Spec-Kit Integration</h3>
+  <div class="code-block"><code><span class="comment"># Optimal workflow in VS Code with Copilot Agent Mode:</span>
+
+<span class="comment"># 1. Open workspace with .specify/ directory</span>
+<span class="comment"># 2. Start Copilot Chat in Agent Mode</span>
+<span class="comment"># 3. Ground the session:</span>
+<span class="cmd">/speckit.constitution</span>
+
+<span class="comment"># 4. Reference specific tasks:</span>
+You: "Implement task 3.1 from tasks.md: Create the SQLite schema
+     for the articles table per our plan.md Phase 1 requirements."
+
+<span class="comment"># 5. Re-ground if the conversation drifts:</span>
+<span class="cmd">/speckit.constitution</span>
+You: "That approach uses MongoDB. Our constitution mandates SQLite.
+     Please revise using better-sqlite3."
+
+<span class="comment"># 6. Validate before accepting:</span>
+<span class="cmd">/speckit.analyze</span></code></div>
+
+  <h3 style="margin-top:32px;">Custom Instructions Integration</h3>
+  <div class="callout-blue callout">
+    <p><strong>Pro Tip:</strong> Create a <code>.github/copilot-instructions.md</code> file that references your Spec-Kit constitution. This ensures every Copilot interaction respects your project principles even outside of slash command workflows:</p>
+  </div>
+  <div class="code-block"><code><span class="comment"># .github/copilot-instructions.md</span>
+
+This project uses Specification-Driven Development via Spec-Kit.
+All code must comply with .specify/constitution.md principles.
+Reference .specify/specification.md for requirements.
+Follow .specify/plan.md for architecture decisions.
+Check .specify/tasks.md for current implementation status.</code></div>
+
+  <h3 style="margin-top:32px;">Plan Mode vs Agent Mode</h3>
+  <table class="gov-table">
+    <thead>
+      <tr><th>Mode</th><th>Best For</th><th>Spec-Kit Integration</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Plan Mode</strong></td>
+        <td>Breaking down complex features, exploring architecture options, drafting specs</td>
+        <td>Use during <code>/speckit.specify</code> and <code>/speckit.plan</code> phases to think through design before committing</td>
+      </tr>
+      <tr>
+        <td><strong>Agent Mode</strong></td>
+        <td>Multi-file implementation, executing tasks, building features end-to-end</td>
+        <td>Use during <code>/speckit.implement</code> phase. Agent mode can read specs, create files, run tests autonomously</td>
+      </tr>
+      <tr>
+        <td><strong>Inline Completions</strong></td>
+        <td>Small, context-aware code suggestions within existing files</td>
+        <td>Works best when spec files are open/pinned&mdash;completions align with constitutional patterns</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- ======== SLASH COMMANDS ======== -->
+<section id="slash-commands" class="section section-alt">
+<div class="container-xl px-3">
+  <h2 class="section-title">Slash Command Mastery</h2>
+  <p class="section-lead">All commands use the <code>/speckit.</code> prefix. Master these patterns for efficient, high-quality spec-driven development.</p>
+
+  <h3>Command Reference</h3>
+  <table class="gov-table">
+    <thead>
+      <tr><th>Command</th><th>Purpose</th><th>When to Use</th><th>Token Cost</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/speckit.constitution</code></td>
+        <td>Create/display core principles</td>
+        <td>Project start, every 5-10 messages, when AI drifts</td>
+        <td style="color:var(--brand-devops);">Low</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.specify</code></td>
+        <td>Define requirements and user stories</td>
+        <td>New features, clarifying boundaries, validating ideas</td>
+        <td style="color:var(--brand-warning);">Medium</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.clarify</code></td>
+        <td>Identify underspecified areas</td>
+        <td>After initial spec, before planning (saves downstream tokens)</td>
+        <td style="color:var(--brand-devops);">Low</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.plan</code></td>
+        <td>Create technical implementation plan</td>
+        <td>After specs are stable, defining architecture + tech choices</td>
+        <td style="color:var(--brand-warning);">Medium-High</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.tasks</code></td>
+        <td>Generate actionable task list</td>
+        <td>After plan, starting coding sessions, tracking progress</td>
+        <td style="color:var(--brand-warning);">Medium</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.implement</code></td>
+        <td>Execute all tasks to build the feature</td>
+        <td>After tasks defined, when ready to build</td>
+        <td style="color:var(--brand-danger);">High</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.analyze</code></td>
+        <td>Cross-artifact consistency check</td>
+        <td>Before implementing, quality gate, after spec changes</td>
+        <td style="color:var(--brand-warning);">Medium</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.checklist</code></td>
+        <td>Generate quality validation checklist</td>
+        <td>Completeness check, pre-implementation validation</td>
+        <td style="color:var(--brand-devops);">Low</td>
+      </tr>
+      <tr>
+        <td><code>/speckit.update [file]</code></td>
+        <td>Modify a specification file</td>
+        <td>When requirements change, adding new features to existing spec</td>
+        <td style="color:var(--brand-warning);">Medium</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:32px;">Strategic Command Patterns</h3>
+  <div class="grid-2">
+    <div class="feature-card">
+      <h3>&#x1F6E1;&#xFE0F; The Constitution Check (Drift Prevention)</h3>
+      <div class="code-block"><code><span class="comment"># When AI suggests something that feels "off":</span>
+AI: "Let's add Redis for caching..."
+You: <span class="cmd">/speckit.constitution</span>
+AI: [Shows Article: Use SQLite for all storage]
+You: "This violates our constitution.
+     Propose a SQLite-based cache instead."</code></div>
+    </div>
+    <div class="feature-card">
+      <h3>&#x2705; The Quality Gate (Pre-Implementation)</h3>
+      <div class="code-block"><code><span class="comment"># Before major implementation work:</span>
+<span class="cmd">/speckit.specify</span>    <span class="comment"># Write requirements</span>
+<span class="cmd">/speckit.clarify</span>    <span class="comment"># Find gaps</span>
+<span class="comment"># [Address gaps]</span>
+<span class="cmd">/speckit.plan</span>       <span class="comment"># Technical plan</span>
+<span class="cmd">/speckit.tasks</span>      <span class="comment"># Task breakdown</span>
+<span class="cmd">/speckit.analyze</span>    <span class="comment"># Consistency check</span>
+<span class="cmd">/speckit.checklist</span>  <span class="comment"># Quality validation</span>
+<span class="cmd">/speckit.implement</span>  <span class="comment"># Execute</span></code></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======== COMMON PITFALLS ======== -->
+<section id="pitfalls" class="section">
+<div class="container-xl px-3">
+  <h2 class="section-title">Common Pitfalls to Watch For</h2>
+  <p class="section-lead">As an observer, these are the patterns that lead to poor outcomes. Flag them early to save time and tokens.</p>
+
+  <div class="grid-2">
+    <div class="feature-card" style="border-left: 4px solid var(--brand-danger);">
+      <h3>&#x1F6A8; 1. Skipping the Constitution</h3>
+      <p>Jumping to <code>/speckit.specify</code> without establishing principles first. The constitution constrains the LLM&mdash;without it, outputs are generic and lack architectural consistency.</p>
+      <p><strong>Fix:</strong> Always start with <code>/speckit.constitution</code>. Even 5 minutes of principle-setting saves hours of rework.</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid var(--brand-danger);">
+      <h3>&#x1F6A8; 2. Over-Specification</h3>
+      <p>Writing 2000+ word constitutions with linting rules, style guides, and micro-decisions. The LLM truncates or loses focus with too much context.</p>
+      <p><strong>Fix:</strong> Constitutional principles should be architectural, not stylistic. Use tooling (<code>.eslintrc</code>, <code>.prettierrc</code>) for style.</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid var(--brand-danger);">
+      <h3>&#x1F6A8; 3. Mixing WHAT and HOW in Specs</h3>
+      <p>Including tech stack decisions in <code>specification.md</code>. This couples requirements to implementation, making specs brittle and hard to iterate.</p>
+      <p><strong>Fix:</strong> Spec = "Users can drag-and-drop albums to reorder." Plan = "Use React DnD with Zustand state management."</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid var(--brand-danger);">
+      <h3>&#x1F6A8; 4. Not Using Clarify Before Plan</h3>
+      <p>Going directly from <code>/speckit.specify</code> to <code>/speckit.plan</code>. Unresolved ambiguities propagate into the plan and multiply during implementation.</p>
+      <p><strong>Fix:</strong> Always run <code>/speckit.clarify</code>. Resolve every <code>[NEEDS CLARIFICATION]</code> marker before proceeding.</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid var(--brand-danger);">
+      <h3>&#x1F6A8; 5. Long Conversations Without Re-grounding</h3>
+      <p>15+ message chains without invoking <code>/speckit.constitution</code>. Context drifts, the LLM "forgets" principles, and output quality degrades progressively.</p>
+      <p><strong>Fix:</strong> Re-invoke <code>/speckit.constitution</code> every 5-10 messages. Start fresh sessions for new features.</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid var(--brand-danger);">
+      <h3>&#x1F6A8; 6. Vague Tasks Leading to Token Waste</h3>
+      <p>Tasks like "Build the authentication system" instead of atomic tasks with clear input/output/test criteria. Causes the LLM to hallucinate scope.</p>
+      <p><strong>Fix:</strong> Each task must have: Input, Output, Error handling strategy, and Test criteria. Target 1-4 hour completion time.</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid var(--brand-danger);">
+      <h3>&#x1F6A8; 7. Not Version-Controlling Specs</h3>
+      <p>Treating <code>.specify/</code> as ephemeral. When specs evolve without history, you lose the ability to correlate spec changes with quality outcomes.</p>
+      <p><strong>Fix:</strong> <code>git add .specify/</code> and commit with every change. Use branches for experimental spec changes.</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid var(--brand-danger);">
+      <h3>&#x1F6A8; 8. Changing Specs Mid-Implementation</h3>
+      <p>Modifying <code>specification.md</code> or <code>plan.md</code> while <code>/speckit.implement</code> is in progress. This creates inconsistencies and forces expensive re-generation.</p>
+      <p><strong>Fix:</strong> Complete current implementation phase, then update specs and regenerate from the plan phase down.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======== COPILOT-SPECIFIC TOKEN PATTERNS ======== -->
+<section id="copilot-token-patterns" class="section section-alt">
+<div class="container-xl px-3">
+  <h2 class="section-title">GitHub Copilot Token Patterns</h2>
+  <p class="section-lead">Specific behaviors in GitHub Copilot that impact token efficiency when combined with Spec-Kit workflows.</p>
+
+  <div class="grid-3">
+    <div class="feature-card">
+      <h3>&#x1F4E5; Context Window Loading</h3>
+      <p>Copilot loads open files, referenced files, and <code>.github/copilot-instructions.md</code> into context. Every additional file consumes tokens from the response budget.</p>
+      <p style="margin-top:8px;"><strong>Action:</strong> Close irrelevant files. Keep only spec files + current implementation target open.</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F4DD; Instruction File Size</h3>
+      <p>The <code>copilot-instructions.md</code> file is loaded on every interaction. If it's 1000+ words, you're spending tokens before the user even types.</p>
+      <p style="margin-top:8px;"><strong>Action:</strong> Keep instructions under 300 words. Point to spec files rather than duplicating content.</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F504; Conversation History</h3>
+      <p>Each message in a session carries forward. After 15-20 exchanges, early context gets compressed or dropped. Spec drift accelerates.</p>
+      <p style="margin-top:8px;"><strong>Action:</strong> Start fresh sessions per feature. Use <code>/speckit.constitution</code> to re-anchor after long exchanges.</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F3AF; #file References</h3>
+      <p>Using <code>#file:path/to/file</code> in Copilot Chat explicitly loads that file into context. This is a precision tool for directing attention.</p>
+      <p style="margin-top:8px;"><strong>Action:</strong> Reference <code>#file:.specify/constitution.md</code> when you need principle alignment. More targeted than <code>@workspace</code>.</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F6AB; @workspace Scope</h3>
+      <p><code>@workspace</code> triggers a search across all indexed files. Useful for discovery, but expensive for implementation where you already know the context.</p>
+      <p style="margin-top:8px;"><strong>Action:</strong> Use <code>@workspace</code> during specify/plan phases. Switch to direct <code>#file</code> references during implement.</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x26A1; Agent Mode Multi-File</h3>
+      <p>Agent Mode can read and write multiple files per turn. Each file operation adds to token usage. Unfocused agent actions multiply costs.</p>
+      <p style="margin-top:8px;"><strong>Action:</strong> Give Agent Mode precise tasks with explicit file targets. "Create <code>src/db/schema.ts</code> per task 2.1" beats "set up the database."</p>
+    </div>
+  </div>
+
+  <div class="callout-success callout" style="margin-top:24px;">
+    <p><strong>Golden Rule:</strong> Precision in prompts = fewer tokens spent. "Implement task 3.2 from tasks.md using better-sqlite3 per constitution Article I" consumes far fewer total tokens than "build the database thing" followed by 5 correction messages.</p>
+  </div>
+</div>
+</section>
+
+<!-- ======== CAVEMAN - ADVANCED TOKEN SAVINGS ======== -->
+<section id="caveman" class="section">
+<div class="container-xl px-3">
+  <h2 class="section-title">&#x1FAA8; Going Further: Caveman for Output Token Compression</h2>
+  <p class="section-lead">Spec-Kit optimizes <em>input</em> token efficiency through structured, concise specifications. <a href="https://github.com/JuliusBrussee/caveman" style="color:var(--brand-spec);">Caveman</a> (62k+ stars) complements this by compressing <em>output</em> tokens&mdash;cutting AI responses by ~65% while maintaining full technical accuracy.</p>
+
+  <div class="callout-blue callout">
+    <p><strong>The Combined Effect:</strong> Spec-Kit structures what goes INTO the model (precise specs, atomic tasks, hierarchical plans). Caveman compresses what comes OUT (terse but accurate responses). Together they attack both sides of the token budget.</p>
+  </div>
+
+  <h3 style="margin-top:24px;">What Caveman Does</h3>
+  <div class="grid-3">
+    <div class="feature-card">
+      <h3>&#x2702;&#xFE0F; Output Compression</h3>
+      <p>AI responses are 65-75% shorter while preserving full technical accuracy. Filler words, pleasantries, and verbose explanations are eliminated. Code and paths remain byte-preserved.</p>
+      <div class="token-meter" style="margin-top:8px;"><span style="font-size:12px;min-width:60px;">Savings:</span><div class="token-bar"><div class="fill low" style="width:65%"></div></div><span style="font-size:12px;color:var(--brand-devops);font-weight:600;">~65%</span></div>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F4C4; Memory File Compression</h3>
+      <p><code>/caveman-compress</code> rewrites context files (instructions, project notes) into compressed format. Saves ~46% input tokens on every session start. Code, URLs, and paths stay intact.</p>
+      <div class="token-meter" style="margin-top:8px;"><span style="font-size:12px;min-width:60px;">Savings:</span><div class="token-bar"><div class="fill low" style="width:46%"></div></div><span style="font-size:12px;color:var(--brand-devops);font-weight:600;">~46%</span></div>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F4CA; Real-Time Tracking</h3>
+      <p><code>/caveman-stats</code> shows actual session token usage, lifetime savings in tokens and USD. Proves the ROI of compression in real numbers you can report to leadership.</p>
+      <div class="token-meter" style="margin-top:8px;"><span style="font-size:12px;min-width:60px;">Speed:</span><div class="token-bar"><div class="fill low" style="width:75%"></div></div><span style="font-size:12px;color:var(--brand-devops);font-weight:600;">~3x faster</span></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">Compression Levels</h3>
+  <table class="gov-table">
+    <thead>
+      <tr><th>Level</th><th>Style</th><th>Best For</th><th>Reduction</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/caveman lite</code></td><td>Drop filler words, keep natural sentence structure</td><td>Day-to-day coding where readability matters</td><td>~40%</td></tr>
+      <tr><td><code>/caveman full</code></td><td>Caveman fragments, no articles/prepositions</td><td>Default. Best balance of savings vs readability</td><td>~65%</td></tr>
+      <tr><td><code>/caveman ultra</code></td><td>Telegraphic&mdash;minimum viable words</td><td>Experienced devs who need max speed</td><td>~75%</td></tr>
+      <tr><td><code>/caveman wenyan</code></td><td>Classical Chinese-inspired brevity</td><td>Extreme compression experiments</td><td>~80%+</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:32px;">How Caveman Pairs with Spec-Kit</h3>
+  <div class="grid-2">
+    <div class="feature-card" style="border-top: 4px solid var(--brand-spec);">
+      <h3>&#x1F4D0; Spec-Kit Handles Structure (Input Side)</h3>
+      <ul>
+        <li>Constitution keeps AI aligned with principles</li>
+        <li>Atomic tasks prevent scope hallucination</li>
+        <li>Hierarchical plans keep files small</li>
+        <li><code>/speckit.clarify</code> eliminates ambiguity before tokens are spent</li>
+        <li>Result: Fewer regeneration cycles, better first-pass output</li>
+      </ul>
+    </div>
+    <div class="feature-card" style="border-top: 4px solid var(--brand-copilot);">
+      <h3>&#x1FAA8; Caveman Handles Brevity (Output Side)</h3>
+      <ul>
+        <li>AI responses are terse but complete</li>
+        <li>Explanations compressed&mdash;code stays intact</li>
+        <li><code>/caveman-compress</code> can shrink your <code>.specify/</code> files for input savings</li>
+        <li>Sticks for entire session (set once, forget)</li>
+        <li>Result: Same information, 65% fewer output tokens</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">Integration Workflow: Spec-Kit + Caveman + GitHub Copilot</h3>
+  <div class="code-block"><code><span class="comment"># 1. Install Caveman (one-time setup)</span>
+<span class="comment">#    macOS / Linux / WSL / Git Bash:</span>
+<span class="cmd">curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash</span>
+
+<span class="comment">#    Windows PowerShell:</span>
+<span class="cmd">irm https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.ps1 | iex</span>
+
+<span class="comment"># 2. Start session with Copilot Agent Mode</span>
+<span class="comment"># 3. Activate compression:</span>
+<span class="cmd">/caveman full</span>          <span class="comment"># or lite/ultra per preference</span>
+
+<span class="comment"># 4. Ground with constitution (now responses are terse):</span>
+<span class="cmd">/speckit.constitution</span>
+
+<span class="comment"># 5. Continue normal Spec-Kit workflow:</span>
+<span class="cmd">/speckit.specify</span>       <span class="comment"># AI describes reqs in compressed format</span>
+<span class="cmd">/speckit.clarify</span>       <span class="comment"># Gaps identified tersely</span>
+<span class="cmd">/speckit.plan</span>          <span class="comment"># Plan generated with less filler</span>
+<span class="cmd">/speckit.tasks</span>         <span class="comment"># Task list, no verbose explanations</span>
+<span class="cmd">/speckit.implement</span>     <span class="comment"># Code output unchanged, narration compressed</span>
+
+<span class="comment"># 6. Check your savings at any point:</span>
+<span class="cmd">/caveman-stats</span>         <span class="comment"># Shows tokens saved + USD equivalent</span>
+
+<span class="comment"># BONUS: Compress spec files for recurring input savings:</span>
+<span class="cmd">/caveman-compress .specify/constitution.md</span>
+<span class="comment"># Rewrites to ~46% fewer tokens. Code/paths preserved.</span>
+<span class="comment"># Every future session that loads this file benefits.</span></code></div>
+
+  <div class="callout-warn callout" style="margin-top:24px;">
+    <p><strong>Important:</strong> Caveman only compresses output tokens (the AI's responses). Thinking/reasoning tokens are untouched&mdash;the AI still reasons fully, it just communicates results more concisely. A 2026 paper (<a href="https://arxiv.org/abs/2604.00025" style="color:var(--brand-warning);">arXiv:2604.00025</a>) found that brevity constraints can actually <em>improve</em> accuracy by 26 points on certain benchmarks.</p>
+  </div>
+
+  <h3 style="margin-top:32px;">Real Benchmark Data</h3>
+  <table class="gov-table">
+    <thead>
+      <tr><th>Task Type</th><th>Normal Tokens</th><th>Caveman Tokens</th><th>Reduction</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Explain React re-render bug</td><td>1,180</td><td>159</td><td style="color:var(--brand-devops);font-weight:600;">87%</td></tr>
+      <tr><td>Fix auth middleware token expiry</td><td>704</td><td>121</td><td style="color:var(--brand-devops);font-weight:600;">83%</td></tr>
+      <tr><td>Set up PostgreSQL connection pool</td><td>2,347</td><td>380</td><td style="color:var(--brand-devops);font-weight:600;">84%</td></tr>
+      <tr><td>Docker multi-stage build</td><td>1,042</td><td>290</td><td style="color:var(--brand-devops);font-weight:600;">72%</td></tr>
+      <tr><td>Debug PostgreSQL race condition</td><td>1,200</td><td>232</td><td style="color:var(--brand-devops);font-weight:600;">81%</td></tr>
+      <tr><td>Implement React error boundary</td><td>3,454</td><td>456</td><td style="color:var(--brand-devops);font-weight:600;">87%</td></tr>
+      <tr style="font-weight:600; background:#f6f8fa;"><td>Average across 10 prompts</td><td>1,214</td><td>294</td><td style="color:var(--brand-devops);font-weight:700;">65%</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:32px;">The Caveman Ecosystem (Complementary Tools)</h3>
+  <div class="grid-4">
+    <div class="feature-card">
+      <h3>&#x1FAA8; caveman</h3>
+      <p>Output compression. "Why use many token when few do trick."</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F9E0; cavemem</h3>
+      <p>Cross-agent memory. "Why agent forget when agent can remember."</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F6E0;&#xFE0F; cavekit</h3>
+      <p>Spec-driven build loop. "Why agent guess when agent can know." Directly complements Spec-Kit.</p>
+    </div>
+    <div class="feature-card">
+      <h3>&#x1F4A0; cavegemma</h3>
+      <p>Fine-tuned model with compression baked into weights. No per-session prompting needed.</p>
+    </div>
+  </div>
+
+  <div class="callout-success callout" style="margin-top:24px;">
+    <p><strong>Combined Token Budget Impact:</strong> Spec-Kit's structured approach prevents regeneration loops (saves ~50% of wasted tokens). Caveman's output compression saves ~65% of remaining output. <code>/caveman-compress</code> on spec files saves ~46% of input tokens per session. Together, a typical scaffolding session can use 60-70% fewer total tokens compared to unstructured, verbose AI interactions.</p>
+  </div>
+</div>
+</section>
+
+<!-- ======== CAVEKIT - ALTERNATIVE/COMPANION SDD ======== -->
+<section id="cavekit" class="section section-alt">
+<div class="container-xl px-3">
+  <h2 class="section-title">&#x1F6E0;&#xFE0F; Cavekit: Compressed Spec-Driven Development</h2>
+  <p class="section-lead"><a href="https://github.com/JuliusBrussee/cavekit" style="color:var(--brand-spec);">Cavekit</a> is a minimalist SDD framework that takes the same specification-driven philosophy as Spec-Kit but optimizes aggressively for token economy. With GitHub's token-based billing model arriving, choosing the right tool (or combining them) directly impacts your monthly costs.</p>
+
+  <div class="callout-danger callout">
+    <p><strong>Token-Based Billing Context:</strong> GitHub Copilot is transitioning to token-based billing where you pay per token consumed (input + output). Every spec file loaded into context, every verbose AI response, and every regeneration cycle directly translates to dollars. Tools like Cavekit that reduce token consumption by 75%+ per interaction represent significant cost savings at scale.</p>
+  </div>
+
+  <h3 style="margin-top:24px;">Cavekit vs Spec-Kit: Key Differences</h3>
+  <table class="gov-table">
+    <thead>
+      <tr><th>Dimension</th><th>Spec-Kit (GitHub)</th><th>Cavekit (Caveman Ecosystem)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Philosophy</strong></td>
+        <td>Full SDD with ceremony&mdash;structured templates, multiple files, detailed plans</td>
+        <td>"The spec is the only artifact that earns its tokens"&mdash;ruthless minimalism</td>
+      </tr>
+      <tr>
+        <td><strong>Spec Files</strong></td>
+        <td>4+ files: <code>constitution.md</code>, <code>specification.md</code>, <code>plan.md</code>, <code>tasks.md</code>, plus sub-files</td>
+        <td>1 file: <code>SPEC.md</code> at repo root. "Big project → more sections, not more files"</td>
+      </tr>
+      <tr>
+        <td><strong>Encoding</strong></td>
+        <td>Natural language prose&mdash;human-readable, verbose</td>
+        <td>Caveman encoding (symbols + fragments)&mdash;75% fewer tokens, machine-optimized</td>
+      </tr>
+      <tr>
+        <td><strong>Commands</strong></td>
+        <td>8+ slash commands: constitution, specify, clarify, plan, tasks, analyze, checklist, implement</td>
+        <td>3 commands: <code>/ck:spec</code>, <code>/ck:build</code>, <code>/ck:check</code></td>
+      </tr>
+      <tr>
+        <td><strong>Error Learning</strong></td>
+        <td>Manual&mdash;developer updates specs after failures</td>
+        <td>Auto-backprop&mdash;test failures become <code>§B</code> entries and <code>§V</code> invariants automatically</td>
+      </tr>
+      <tr>
+        <td><strong>Sub-Agents</strong></td>
+        <td>AI agent works through tasks (may use sub-agents depending on IDE)</td>
+        <td>No sub-agents. Main agent does all work. Fewer orchestration tokens.</td>
+      </tr>
+      <tr>
+        <td><strong>AI Support</strong></td>
+        <td>Copilot, Claude, Gemini, Cursor, Windsurf, Qwen, 30+ agents</td>
+        <td>Claude Code primary (skills install). Works with Copilot via manual SPEC.md</td>
+      </tr>
+      <tr>
+        <td><strong>Team Use</strong></td>
+        <td>Strong&mdash;templates, version control, PR-based spec collaboration</td>
+        <td>Solo-focused. <code>cat SPEC.md</code> is the dashboard. No dashboards or workflows.</td>
+      </tr>
+      <tr>
+        <td><strong>Token Cost Per Session</strong></td>
+        <td>Medium-High (multiple file loads, verbose prose, template overhead)</td>
+        <td>Ultra-Low (single file, 75% compressed, no orchestration overhead)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:32px;">The SPEC.md Format (Cavekit)</h3>
+  <p style="font-size:14px;color:#656d76;margin-bottom:16px;">One file, six fixed sections, caveman-encoded. Loaded on every command invocation&mdash;75% fewer tokens = 75% fewer dollars.</p>
+  <div class="code-block"><code><span class="comment"># SPEC</span>
+
+<span class="comment">## §G GOAL</span>
+photo album organizer w/ drag-drop reorder, date-grouped, local SQLite
+
+<span class="comment">## §C CONSTRAINTS</span>
+- lang: vanilla JS + HTML + CSS (no frameworks)
+- store: SQLite via better-sqlite3
+- images: local filesystem, metadata in DB
+- build: Vite, zero external deps beyond sqlite
+
+<span class="comment">## §I INTERFACES</span>
+- cmd: `npm start` → localhost:3000
+- api: GET /albums → 200 [{id,name,date,order}]
+- api: PUT /albums/:id/order → 200 {ok}
+- file: `data/photos.db` auto-created on first run
+
+<span class="comment">## §V INVARIANTS</span>
+V1: ∀ album → ! have name & date
+V2: drag-drop ⊥ lose album (order persist across refresh)
+V3: DB write ! in transaction
+V4: ∀ api error → 4xx/5xx JSON {error:string}
+
+<span class="comment">## §T TASKS</span>
+id|status|task|cites
+T1|.|scaffold Vite + SQLite schema|V3
+T2|.|GET /albums endpoint|I.api,V4
+T3|.|PUT /albums/:id/order|I.api,V2,V3
+T4|.|drag-drop UI w/ order persist|V2
+T5|.|album create/rename/delete UI|V1
+
+<span class="comment">## §B BUGS</span>
+<span class="comment">(empty — backprop adds rows on test failure)</span></code></div>
+
+  <h3 style="margin-top:32px;">Cavekit Symbol Reference</h3>
+  <div class="grid-3">
+    <div class="feature-card">
+      <h3>Logic Symbols</h3>
+      <table style="font-size:13px;width:100%;border-collapse:collapse;">
+        <tr><td style="padding:4px 8px;font-family:monospace;">→</td><td style="padding:4px;">leads to / triggers</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">∴</td><td style="padding:4px;">therefore / fix</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">∀</td><td style="padding:4px;">for all / every</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">∃</td><td style="padding:4px;">exists / some</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">!</td><td style="padding:4px;">must</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">?</td><td style="padding:4px;">may / optional</td></tr>
+      </table>
+    </div>
+    <div class="feature-card">
+      <h3>Comparison Symbols</h3>
+      <table style="font-size:13px;width:100%;border-collapse:collapse;">
+        <tr><td style="padding:4px 8px;font-family:monospace;">⊥</td><td style="padding:4px;">never / impossible / forbidden</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">≠</td><td style="padding:4px;">not equal / differs from</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">∈</td><td style="padding:4px;">in / member of</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">∉</td><td style="padding:4px;">not in</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">≤</td><td style="padding:4px;">at most</td></tr>
+        <tr><td style="padding:4px 8px;font-family:monospace;">≥</td><td style="padding:4px;">at least</td></tr>
+      </table>
+    </div>
+    <div class="feature-card">
+      <h3>Encoding Rules</h3>
+      <ul style="font-size:13px;">
+        <li>Drop articles (a, an, the)</li>
+        <li>Drop aux verbs (is, are, was)</li>
+        <li>Short synonyms (fix &gt; implement)</li>
+        <li>Fragments fine (no full sentences needed)</li>
+        <li><strong>Preserve verbatim:</strong> code, paths, identifiers, URLs, numbers, regex, SQL</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">When to Use Which</h3>
+  <div class="grid-2">
+    <div class="feature-card" style="border-top: 4px solid var(--brand-spec);">
+      <h3>&#x1F4D0; Choose Spec-Kit When:</h3>
+      <ul>
+        <li><strong>Team environment</strong>&mdash;multiple devs collaborating on specs via PRs</li>
+        <li><strong>Enterprise governance</strong>&mdash;need audit trails, detailed documentation</li>
+        <li><strong>Onboarding</strong>&mdash;new team members benefit from verbose, readable specs</li>
+        <li><strong>Multi-phase projects</strong>&mdash;complex roadmaps with phased rollout</li>
+        <li><strong>Copilot-first workflow</strong>&mdash;native slash command integration</li>
+        <li><strong>Stakeholder visibility</strong>&mdash;specs double as living documentation</li>
+        <li><strong>Token budget is comfortable</strong>&mdash;readability &gt; compression</li>
+      </ul>
+    </div>
+    <div class="feature-card" style="border-top: 4px solid var(--brand-copilot);">
+      <h3>&#x1FAA8; Choose Cavekit When:</h3>
+      <ul>
+        <li><strong>Solo developer</strong>&mdash;you don't need team-readable verbose specs</li>
+        <li><strong>Token budget is tight</strong>&mdash;billing per token, need maximum compression</li>
+        <li><strong>Speed is priority</strong>&mdash;3 commands vs 8+, no ceremony</li>
+        <li><strong>Rapid prototyping</strong>&mdash;want to iterate fast with minimal overhead</li>
+        <li><strong>Error-heavy domain</strong>&mdash;auto-backprop from test failures is critical</li>
+        <li><strong>Context resets are frequent</strong>&mdash;single file survives session boundaries</li>
+        <li><strong>Claude Code primary agent</strong>&mdash;deepest integration via skills install</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">Hybrid Approach: Spec-Kit + Cavekit Together</h3>
+  <div class="callout-blue callout">
+    <p><strong>Best of Both Worlds:</strong> Use Spec-Kit for the human-facing workflow (team reviews, stakeholder docs, PR-based spec evolution) and Cavekit's encoding principles for the AI-facing artifacts (compressed instructions, minimal context loading). The two aren't mutually exclusive.</p>
+  </div>
+
+  <div class="code-block"><code><span class="comment"># HYBRID APPROACH: Spec-Kit structure + Cavekit compression</span>
+
+<span class="comment"># 1. Use Spec-Kit's full workflow for spec creation (human-readable):</span>
+<span class="cmd">/speckit.constitution</span>    <span class="comment"># Verbose, team-readable principles</span>
+<span class="cmd">/speckit.specify</span>         <span class="comment"># Detailed requirements with user stories</span>
+<span class="cmd">/speckit.plan</span>            <span class="comment"># Full architecture docs</span>
+
+<span class="comment"># 2. Create a compressed SPEC.md for AI consumption:</span>
+<span class="comment">#    Translate your .specify/ artifacts into cavekit's §-format</span>
+<span class="comment">#    Keep .specify/ for humans, SPEC.md for the AI agent</span>
+
+<span class="comment"># 3. During implementation, use cavekit's efficiency:</span>
+<span class="cmd">/ck:build</span>                <span class="comment"># AI reads compressed SPEC.md (75% fewer input tokens)</span>
+<span class="cmd">/ck:check</span>                <span class="comment"># Drift detection against compact invariants</span>
+
+<span class="comment"># 4. Auto-backprop captures failures that Spec-Kit would miss:</span>
+<span class="comment">#    Test failure → §B entry → §V invariant → never repeat</span>
+
+<span class="comment"># 5. Sync back: update .specify/ from SPEC.md for team visibility</span>
+<span class="cmd">git add SPEC.md .specify/</span>
+<span class="cmd">git commit -m "feat: complete T1-T3, backprop B1→V5"</span></code></div>
+
+  <h3 style="margin-top:32px;">Token Cost Comparison Under Token-Based Billing</h3>
+  <p style="font-size:14px;color:#656d76;margin-bottom:16px;">Estimated token usage for scaffolding a medium-complexity feature (photo album app with 5 tasks):</p>
+  <table class="gov-table">
+    <thead>
+      <tr><th>Approach</th><th>Input Tokens/Session</th><th>Output Tokens/Session</th><th>Total Tokens</th><th>Relative Cost</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Unstructured (no spec framework)</td>
+        <td>~8,000</td>
+        <td>~12,000</td>
+        <td>~20,000</td>
+        <td style="color:var(--brand-danger);font-weight:600;">100% (baseline)</td>
+      </tr>
+      <tr>
+        <td>Spec-Kit (verbose specs)</td>
+        <td>~6,000</td>
+        <td>~10,000</td>
+        <td>~16,000</td>
+        <td style="color:var(--brand-warning);font-weight:600;">~80%</td>
+      </tr>
+      <tr>
+        <td>Spec-Kit + Caveman (compressed output)</td>
+        <td>~6,000</td>
+        <td>~3,500</td>
+        <td>~9,500</td>
+        <td style="color:var(--brand-devops);font-weight:600;">~48%</td>
+      </tr>
+      <tr>
+        <td>Cavekit (compressed spec + compressed output)</td>
+        <td>~1,500</td>
+        <td>~3,500</td>
+        <td>~5,000</td>
+        <td style="color:var(--brand-devops);font-weight:700;">~25%</td>
+      </tr>
+      <tr style="background:#f5f0ff;">
+        <td><strong>Spec-Kit + Cavekit Hybrid</strong></td>
+        <td>~2,500</td>
+        <td>~3,500</td>
+        <td>~6,000</td>
+        <td style="color:var(--brand-devops);font-weight:700;">~30%</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:#656d76;margin-top:8px;">* Estimates based on published benchmarks. Actual usage varies by project complexity, model, and conversation length. Does not include thinking/reasoning tokens (not affected by compression).</p>
+
+  <h3 style="margin-top:32px;">Cavekit's Backprop Mechanism</h3>
+  <p style="font-size:14px;color:#656d76;margin-bottom:16px;">The killer feature Spec-Kit doesn't have: automatic learning from failures. Every test failure becomes a permanent invariant the spec never forgets.</p>
+  <div class="grid-2">
+    <div class="feature-card">
+      <h3>How Backprop Works</h3>
+      <ol style="font-size:14px;color:#656d76;line-height:1.8;">
+        <li>Test fails during <code>/ck:build</code></li>
+        <li>Agent diagnoses root cause</li>
+        <li>Adds <code>§B</code> entry: <code>B3|2026-05-19|race on write|V3</code></li>
+        <li>If no invariant covers it, creates new <code>§V</code> entry</li>
+        <li>Invariant prevents recurrence across all future sessions</li>
+        <li>SPEC.md grows smarter with every failure</li>
+      </ol>
+    </div>
+    <div class="feature-card">
+      <h3>Why This Matters for Token Billing</h3>
+      <ul style="font-size:14px;color:#656d76;line-height:1.8;">
+        <li><strong>Prevents repeated mistakes</strong>&mdash;each bug class caught once, permanently</li>
+        <li><strong>Reduces regeneration cycles</strong>&mdash;invariants prevent the same failure pattern</li>
+        <li><strong>Self-improving spec</strong>&mdash;SPEC.md gets better without manual effort</li>
+        <li><strong>Audit trail</strong>&mdash;§B table shows what went wrong and when</li>
+        <li><strong>Token ROI</strong>&mdash;a 10-token invariant can prevent 1000+ tokens of failed implementation</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">Quick-Start: Cavekit Installation</h3>
+  <div class="code-block"><code><span class="comment"># Install via skills CLI (recommended for Claude Code):</span>
+<span class="cmd">npx skills add JuliusBrussee/cavekit</span>
+
+<span class="comment"># Installs: spec, build, check skills + caveman + backprop utilities</span>
+<span class="comment"># Claude Code picks them up on next launch</span>
+
+<span class="comment"># Or via Claude Code marketplace:</span>
+<span class="cmd">/plugin marketplace add juliusbrussee/cavekit</span>
+<span class="cmd">/plugin install ck@cavekit</span>
+
+<span class="comment"># Or clone directly:</span>
+<span class="cmd">git clone https://github.com/juliusbrussee/cavekit.git ~/.claude/plugins/cavekit</span>
+
+<span class="comment"># Usage (3 commands — that's it):</span>
+<span class="cmd">/ck:spec</span>     <span class="comment"># Create / amend / backprop SPEC.md (sole mutator)</span>
+<span class="cmd">/ck:build</span>    <span class="comment"># Plan → execute against spec. Auto-backprops on failure.</span>
+<span class="cmd">/ck:check</span>    <span class="comment"># Read-only drift report. Lists §V / §I / §T violations.</span></code></div>
+
+  <div class="callout callout-warn" style="margin-top:24px;">
+    <p><strong>For Copilot Users:</strong> Cavekit's skills install is optimized for Claude Code. For GitHub Copilot workflows, you can still use Cavekit's <strong>SPEC.md format</strong> manually&mdash;create the file following the §-section format, reference it via <code>#file:SPEC.md</code> in Copilot Chat, and adopt the caveman encoding rules in your <code>copilot-instructions.md</code>. The format is just Markdown; no tooling lock-in.</p>
+  </div>
+
+  <h3 style="margin-top:32px;">Decision Matrix: Preparing for Token-Based Billing</h3>
+  <div class="grid-3">
+    <div class="feature-card" style="border-left: 4px solid var(--brand-devops);">
+      <h3>&#x1F4B0; Budget-Conscious Solo Dev</h3>
+      <p style="font-size:14px;"><strong>Use:</strong> Cavekit + Caveman</p>
+      <ul style="font-size:13px;">
+        <li>Minimum token spend</li>
+        <li>~75% reduction vs unstructured</li>
+        <li>Auto-backprop prevents waste</li>
+        <li>3 commands, no ceremony</li>
+      </ul>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid var(--brand-spec);">
+      <h3>&#x1F465; Team with Governance Needs</h3>
+      <p style="font-size:14px;"><strong>Use:</strong> Spec-Kit + Caveman</p>
+      <ul style="font-size:13px;">
+        <li>Readable specs for team review</li>
+        <li>PR-based spec collaboration</li>
+        <li>Caveman compresses output (~48% total savings)</li>
+        <li>Stakeholder-friendly docs</li>
+      </ul>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid var(--brand-copilot);">
+      <h3>&#x1F680; Max Efficiency + Team Docs</h3>
+      <p style="font-size:14px;"><strong>Use:</strong> Spec-Kit + Cavekit Hybrid</p>
+      <ul style="font-size:13px;">
+        <li>Spec-Kit for human-facing docs</li>
+        <li>SPEC.md for AI-facing context</li>
+        <li>Backprop for error learning</li>
+        <li>~70% savings vs baseline</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======== OBSERVER CHECKLIST ======== -->
+<section id="observer-checklist" class="section">
+<div class="container-xl px-3">
+  <h2 class="section-title">Observer Checklist</h2>
+  <p class="section-lead">Use this checklist as you watch the developer scaffold their application. Each item represents a best practice checkpoint.</p>
+
+  <div class="grid-2">
+    <div>
+      <h3>&#x1F3D7;&#xFE0F; Setup &amp; Initialization</h3>
+      <ul class="checklist">
+        <li>Spec-Kit installed and <code>specify check</code> passes</li>
+        <li>Project initialized with <code>specify init --ai copilot</code></li>
+        <li><code>.specify/</code> directory committed to git</li>
+        <li><code>.github/copilot-instructions.md</code> references spec files</li>
+        <li>Irrelevant files closed in editor</li>
+      </ul>
+
+      <h3 style="margin-top:24px;">&#x1F4D0; Constitution Quality</h3>
+      <ul class="checklist">
+        <li>Constitution created before specification</li>
+        <li>Principles are specific and testable (not vague)</li>
+        <li>Includes approved library list with rationale</li>
+        <li>Under 500 words (concise and dense)</li>
+        <li>Defines what "done" looks like</li>
+        <li>Documents WHY each principle exists</li>
+      </ul>
+
+      <h3 style="margin-top:24px;">&#x1F4DD; Specification Quality</h3>
+      <ul class="checklist">
+        <li>Focuses on WHAT and WHY, not HOW</li>
+        <li>Has measurable acceptance criteria</li>
+        <li>No implementation details (tech stack, libraries)</li>
+        <li>All <code>[NEEDS CLARIFICATION]</code> markers resolved</li>
+        <li>User stories have clear success criteria</li>
+      </ul>
+    </div>
+    <div>
+      <h3>&#x26A1; Token Efficiency</h3>
+      <ul class="checklist">
+        <li><code>/speckit.clarify</code> used before <code>/speckit.plan</code></li>
+        <li><code>/speckit.constitution</code> invoked every 5-10 messages</li>
+        <li>New chat sessions started for new features</li>
+        <li>Prompts reference specific tasks by number</li>
+        <li>No compound requests (one intent per message)</li>
+        <li>Not repeatedly asking AI to "redo" or "try again"</li>
+        <li>Agent Mode given explicit file targets</li>
+        <li><code>#file</code> references used instead of broad <code>@workspace</code> during implement</li>
+      </ul>
+
+      <h3 style="margin-top:24px;">&#x1F680; Implementation Quality</h3>
+      <ul class="checklist">
+        <li>Tasks are atomic (1-4 hours, clear I/O/test)</li>
+        <li><code>/speckit.analyze</code> run before <code>/speckit.implement</code></li>
+        <li>No spec changes during active implementation</li>
+        <li>Plan uses hierarchical detail (sub-files for complexity)</li>
+        <li>Specs version-controlled with meaningful commits</li>
+        <li>Phase gates checked before proceeding</li>
+      </ul>
+
+      <h3 style="margin-top:24px;">&#x1F6E1;&#xFE0F; Drift Prevention</h3>
+      <ul class="checklist">
+        <li>AI suggestions checked against constitution</li>
+        <li>Tech choices align with plan.md (no ad-hoc introductions)</li>
+        <li>Features traced back to specification.md</li>
+        <li>No "nice to have" features added without spec update</li>
+      </ul>
+
+      <h3 style="margin-top:24px;">&#x1FAA8; Caveman (Optional Token Savings)</h3>
+      <ul class="checklist">
+        <li><code>/caveman</code> activated at session start (lite/full/ultra)</li>
+        <li>Compression level appropriate for dev experience</li>
+        <li><code>/caveman-stats</code> checked periodically to measure savings</li>
+        <li><code>/caveman-compress</code> applied to stable spec files for input savings</li>
+        <li>Code output verified as byte-identical (compression = narration only)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ======== QUICK REFERENCE ======== -->
+<section class="section section-alt">
+<div class="container-xl px-3">
+  <h2 class="section-title">Quick Reference</h2>
+
+  <h3>Installation &amp; Setup</h3>
+  <div class="code-block"><code><span class="comment"># Install Spec-Kit</span>
+<span class="cmd">uv tool install</span> specify-cli --from git+https://github.com/github/spec-kit.git
+
+<span class="comment"># Initialize project with Copilot</span>
+<span class="cmd">specify init</span> my-project <span class="flag">--ai copilot</span>
+
+<span class="comment"># Or initialize in current directory</span>
+<span class="cmd">specify init</span> . <span class="flag">--ai copilot</span>
+
+<span class="comment"># Verify installation</span>
+<span class="cmd">specify check</span>
+
+<span class="comment"># Upgrade Spec-Kit</span>
+<span class="cmd">uv tool install</span> specify-cli <span class="flag">--force</span> --from git+https://github.com/github/spec-kit.git</code></div>
+
+  <h3 style="margin-top:24px;">Workflow Cheatsheet</h3>
+  <div class="code-block"><code><span class="comment"># Complete best-practice workflow:</span>
+
+<span class="cmd">/speckit.constitution</span>   <span class="comment"># 1. Establish project rules</span>
+<span class="cmd">/speckit.specify</span>        <span class="comment"># 2. Define WHAT to build</span>
+<span class="cmd">/speckit.clarify</span>        <span class="comment"># 3. Find gaps (saves tokens downstream)</span>
+<span class="comment"># [Resolve all NEEDS CLARIFICATION markers]</span>
+<span class="cmd">/speckit.plan</span>           <span class="comment"># 4. Define HOW (tech stack + phases)</span>
+<span class="cmd">/speckit.tasks</span>          <span class="comment"># 5. Break into atomic tasks</span>
+<span class="cmd">/speckit.analyze</span>        <span class="comment"># 6. Validate consistency (quality gate)</span>
+<span class="cmd">/speckit.checklist</span>      <span class="comment"># 7. Final quality check</span>
+<span class="cmd">/speckit.implement</span>      <span class="comment"># 8. Build it</span>
+
+<span class="comment"># Mid-conversation re-grounding (every 5-10 messages):</span>
+<span class="cmd">/speckit.constitution</span>   <span class="comment"># Prevent drift</span>
+
+<span class="comment"># After implementation:</span>
+<span class="cmd">git add .specify/</span>
+<span class="cmd">git commit -m "docs: Update specs for feature X"</span></code></div>
+
+  <h3 style="margin-top:24px;">Key Metrics to Track</h3>
+  <table class="gov-table">
+    <thead>
+      <tr><th>Metric</th><th>Target</th><th>What It Means</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Spec Changes/Week</td><td>&lt;2 after initial setup</td><td>Frequent changes = discovering requirements late</td></tr>
+      <tr><td>AI Adherence Rate</td><td>85%+ across models</td><td>(Features correct) / (Total features) &times; 100%</td></tr>
+      <tr><td>Task Completion Velocity</td><td>Consistent (1.0) or improving (&gt;1.0)</td><td>Drops suggest tasks too large or specs too vague</td></tr>
+      <tr><td>Constitutional Violations</td><td>&lt;1 per 10 PRs</td><td>PR comments citing principle violations</td></tr>
+      <tr><td>Time to First Feature</td><td>&lt;8h simple, &lt;40h complex</td><td>From <code>specify init</code> to first deployable feature</td></tr>
+      <tr><td>Regeneration Rate</td><td>&lt;15% of messages are "redo/try again"</td><td>High rate = spec quality issues upstream</td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+<div class="container-xl px-3">
+  <div class="grid-2">
+    <div>
+      <p style="font-weight:600; color:#f0f6fc; margin-bottom:8px;">Resources</p>
+      <p><a href="https://github.com/github/spec-kit">Spec-Kit Repository</a></p>
+      <p><a href="https://github.com/github/spec-kit/blob/main/spec-driven.md">Specification-Driven Development (SDD)</a></p>
+      <p><a href="https://github.com/GKAYED/hybrid-spec-framework/blob/main/SPEC-KIT-BEST-PRACTICES.md">Spec-Kit Best Practices (Community)</a></p>
+      <p><a href="https://github.com/JuliusBrussee/caveman">Caveman &mdash; Output Token Compression</a></p>
+      <p><a href="https://github.com/JuliusBrussee/cavekit">Cavekit &mdash; Compressed SDD Framework</a></p>
+    </div>
+    <div>
+      <p style="font-weight:600; color:#f0f6fc; margin-bottom:8px;">Key Principles</p>
+      <p style="font-size:14px;">Specs capture WHAT, not HOW. Constitution constrains the LLM. Precision in prompts = fewer tokens. Clarify before planning. Atomic tasks prevent hallucination. Re-ground every 5-10 messages. Caveman compresses output&mdash;same brain, smaller mouth.</p>
+    </div>
+  </div>
+  <hr style="border-color:#30363d; margin:24px 0;">
+  <p style="font-size:13px;">Spec-Kit Observer Guide &mdash; Best Practices for Specification-Driven Development with GitHub Copilot &mdash; 2026</p>
+</div>
+</footer>
+
+</body>
+</html>
